@@ -1,0 +1,11 @@
+{
+  "name": "@pkg/prisma",
+  "private": true,
+  "dependencies": {
+    "prisma": "^5.16.1",
+    "@prisma/client": "^5.16.1"
+  },
+  "scripts": {
+    "prisma": "prisma"
+  }
+}

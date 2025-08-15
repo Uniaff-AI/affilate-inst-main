@@ -1,0 +1,130 @@
+{
+  "timestamp": "2025-08-14T20:04:32.467Z",
+  "summary": {
+    "totalTests": 24,
+    "passedTests": 23,
+    "failedTests": 1
+  },
+  "results": [
+    {
+      "test": "File exists: apps/web/app/dashboard/page.tsx",
+      "passed": true,
+      "details": "File found"
+    },
+    {
+      "test": "File exists: apps/web/app/subscribers/page.tsx",
+      "passed": true,
+      "details": "File found"
+    },
+    {
+      "test": "File exists: apps/web/app/materials/page.tsx",
+      "passed": true,
+      "details": "File found"
+    },
+    {
+      "test": "File exists: apps/web/app/(auth)/login/page.tsx",
+      "passed": true,
+      "details": "File found"
+    },
+    {
+      "test": "File exists: apps/web/app/globals.css",
+      "passed": true,
+      "details": "File found"
+    },
+    {
+      "test": "File exists: apps/web/tailwind.config.ts",
+      "passed": true,
+      "details": "File found"
+    },
+    {
+      "test": "Mobile CSS in globals.css",
+      "passed": true,
+      "details": "Mobile CSS found"
+    },
+    {
+      "test": "Mobile CSS in mobile.css",
+      "passed": true,
+      "details": "Mobile CSS found"
+    },
+    {
+      "test": "Mobile CSS in page.tsx",
+      "passed": true,
+      "details": "Mobile CSS found"
+    },
+    {
+      "test": "Responsive Tailwind Classes",
+      "passed": true,
+      "details": "Responsive classes found"
+    },
+    {
+      "test": "Mobile-First Approach",
+      "passed": false,
+      "details": "No mobile-first approach"
+    },
+    {
+      "test": "Video Preview Modal",
+      "passed": true,
+      "details": "Video preview modal found"
+    },
+    {
+      "test": "Video Thumbnails",
+      "passed": true,
+      "details": "Thumbnail support found"
+    },
+    {
+      "test": "Modal Implementation",
+      "passed": true,
+      "details": "Modal implementation found"
+    },
+    {
+      "test": "User Model",
+      "passed": true,
+      "details": "User model found"
+    },
+    {
+      "test": "Partner Model",
+      "passed": true,
+      "details": "Partner model found"
+    },
+    {
+      "test": "Reel Model",
+      "passed": true,
+      "details": "Reel model found"
+    },
+    {
+      "test": "Link Model",
+      "passed": true,
+      "details": "Link model found"
+    },
+    {
+      "test": "PWA Manifest - Name",
+      "passed": true,
+      "details": "App name defined"
+    },
+    {
+      "test": "PWA Manifest - Short Name",
+      "passed": true,
+      "details": "Short name defined"
+    },
+    {
+      "test": "PWA Manifest - Start URL",
+      "passed": true,
+      "details": "Start URL defined"
+    },
+    {
+      "test": "PWA Manifest - Display",
+      "passed": true,
+      "details": "Display mode defined"
+    },
+    {
+      "test": "PWA Meta - Viewport",
+      "passed": true,
+      "details": "Viewport meta found"
+    },
+    {
+      "test": "PWA Meta - Theme Color",
+      "passed": true,
+      "details": "Theme color found"
+    }
+  ]
+}

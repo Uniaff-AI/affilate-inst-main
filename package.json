@@ -1,0 +1,33 @@
+{
+  "name": "instagram-affiliate-mobile",
+  "version": "1.0.0",
+  "description": "Instagram Affiliate App with Mobile Optimization",
+  "scripts": {
+    "dev": "cd apps/web && npm run dev",
+    "build": "cd apps/web && npm run build",
+    "start": "cd apps/web && npm start",
+    "test": "cd apps/web && npm test",
+    "test:mobile": "node test-mobile.js",
+    "test:lighthouse": "lighthouse http://localhost:3000 --view",
+    "install:all": "npm install && cd apps/web && npm install && cd ../api && npm install && cd ../../packages/prisma && npm install",
+    "setup": "npm run install:all && cd apps/web && npm run build"
+  },
+  "keywords": [
+    "instagram",
+    "affiliate",
+    "mobile",
+    "responsive",
+    "nextjs",
+    "tailwind"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "devDependencies": {
+    "puppeteer": "^21.0.0",
+    "lighthouse": "^11.0.0"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ]
+}

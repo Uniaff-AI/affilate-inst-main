@@ -1,0 +1,110 @@
+{
+  "timestamp": "2025-08-14T20:14:41.103Z",
+  "summary": {
+    "totalTests": 20,
+    "passedTests": 17,
+    "failedTests": 3
+  },
+  "results": [
+    {
+      "test": "User Model Structure",
+      "passed": true,
+      "details": "User model with required fields found"
+    },
+    {
+      "test": "User-Partner Relationship",
+      "passed": false,
+      "details": "User-Partner relationship missing"
+    },
+    {
+      "test": "Partner Model Structure",
+      "passed": true,
+      "details": "Partner model with required fields found"
+    },
+    {
+      "test": "Partner Relationships",
+      "passed": false,
+      "details": "Partner relationships missing"
+    },
+    {
+      "test": "Reel Model Structure",
+      "passed": true,
+      "details": "Reel model with required fields found"
+    },
+    {
+      "test": "API Controller: auth.controller",
+      "passed": true,
+      "details": "Controller with endpoints found"
+    },
+    {
+      "test": "API Controller: partners.controller",
+      "passed": true,
+      "details": "Controller with endpoints found"
+    },
+    {
+      "test": "API Controller: reels.controller",
+      "passed": true,
+      "details": "Controller with endpoints found"
+    },
+    {
+      "test": "API Controller: links.controller",
+      "passed": true,
+      "details": "Controller with endpoints found"
+    },
+    {
+      "test": "User Registration Method",
+      "passed": true,
+      "details": "Registration method found in service"
+    },
+    {
+      "test": "Password Security",
+      "passed": true,
+      "details": "Password hashing implemented"
+    },
+    {
+      "test": "JWT Authentication",
+      "passed": true,
+      "details": "JWT token generation found"
+    },
+    {
+      "test": "Registration Endpoint",
+      "passed": true,
+      "details": "Registration endpoint defined"
+    },
+    {
+      "test": "Partner Creation Method",
+      "passed": false,
+      "details": "Partner creation method missing"
+    },
+    {
+      "test": "User-Partner Linking",
+      "passed": true,
+      "details": "User-Partner linking logic found"
+    },
+    {
+      "test": "Partner API Endpoints",
+      "passed": true,
+      "details": "Partner API endpoints found"
+    },
+    {
+      "test": "Video Preview Modal",
+      "passed": true,
+      "details": "Video preview modal implemented"
+    },
+    {
+      "test": "Video Player",
+      "passed": true,
+      "details": "Video player component found"
+    },
+    {
+      "test": "Thumbnail Display",
+      "passed": true,
+      "details": "Thumbnail display implemented"
+    },
+    {
+      "test": "Video Interaction",
+      "passed": true,
+      "details": "Video interaction implemented"
+    }
+  ]
+}

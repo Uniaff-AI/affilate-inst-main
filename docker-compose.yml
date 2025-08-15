@@ -1,0 +1,77 @@
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "${HOST_DB_PORT}:${DB_PORT}"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile.dev
+    env_file: [.env]
+    environment:
+      NODE_ENV: development
+      PORT: ${API_PORT}
+      DATABASE_URL: ${DATABASE_URL}
+      CHOKIDAR_USEPOLLING: ${CHOKIDAR_USEPOLLING}
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "${HOST_API_PORT}:${API_PORT}"
+    volumes:
+      - ./apps/api:/app/apps/api
+      - ./packages/prisma:/app/packages/prisma
+      - api_uploads:/app/apps/api/uploads
+      - /app/apps/api/node_modules
+      - /app/packages/prisma/node_modules
+    command: >
+      sh -lc "
+        pnpm --dir packages/prisma install --no-frozen-lockfile &&
+        pnpm --dir packages/prisma exec prisma generate --schema schema.prisma &&
+        pnpm --dir packages/prisma exec prisma migrate deploy --schema schema.prisma ||
+        pnpm --dir packages/prisma exec prisma db push --schema schema.prisma &&
+        pnpm --dir apps/api install --no-frozen-lockfile &&
+        pnpm --dir apps/api start:dev
+      "
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile.dev
+    env_file: [.env]
+    environment:
+      NODE_ENV: development
+      PORT: ${WEB_PORT}
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
+      INTERNAL_API_URL: ${INTERNAL_API_URL}
+      CHOKIDAR_USEPOLLING: ${CHOKIDAR_USEPOLLING}
+    depends_on:
+      api:
+        condition: service_started
+    ports:
+      - "${HOST_WEB_PORT}:${WEB_PORT}"
+    volumes:
+      - ./apps/web:/app/apps/web
+      - ./packages/prisma:/app/packages/prisma
+      - /app/apps/web/node_modules
+    command: >
+      sh -lc "
+        pnpm --dir apps/web install --no-frozen-lockfile &&
+        pnpm --dir apps/web dev
+      "
+
+volumes:
+  db_data:
+  api_uploads:
