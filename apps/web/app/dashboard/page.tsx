@@ -130,7 +130,6 @@ export default function Dashboard() {
       // dacă nu există nimic -> creăm primary automat
       if (!result.length) {
         const created: any = await api.partner.links.create({
-          primary: true,
           utmSource: 'partner',
           utmCampaign: 'default',
         });
@@ -141,7 +140,6 @@ export default function Dashboard() {
       // fallback: încearcă totuși să creezi un primary
       try {
         const created: any = await api.partner.links.create({
-          primary: true,
           utmSource: 'partner',
           utmCampaign: 'default',
         });

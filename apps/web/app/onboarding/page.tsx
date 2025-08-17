@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { api } from '@/lib/api';
 
-type Reel = { id: string; title: string | null; durationSec: number | null; views?: number | null; thumbUrl?: string | null; };
+type Reel = { id: string; title: string | null; durationSec: number | null; views?: number | null; previewPath?: string | null; thumbnailPath?: string | null; };
 type Creds = { username?: string; password?: string } | null;
 
 export default function Onboarding() {
@@ -14,6 +14,7 @@ export default function Onboarding() {
     const [selected, setSelected] = useState<string[]>([]);
     const [showPass, setShowPass] = useState(false);
     const [creds, setCreds] = useState<Creds>(null);
+    const [previewReel, setPreviewReel] = useState<Reel | null>(null);
     const triedCredsRef = useRef(false); // ca să nu cerem la infinit
 
     // Restore one‑time creds după refresh (doar în sesiune)
@@ -72,6 +73,34 @@ export default function Onboarding() {
     const nextFromContent = async () => {
         setBusy(true);
         try {
+            // Скачиваем выбранные рилсы
+            for (const reelId of selected) {
+                const reel = reels.find(r => r.id === reelId);
+                if (reel) {
+                    try {
+                        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/reels/${reelId}/download`, {
+                            headers: {
+                                'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                            },
+                        });
+                        
+                        if (response.ok) {
+                            const blob = await response.blob();
+                            const url = window.URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = `${reel.title || 'reel'}.mp4`;
+                            document.body.appendChild(a);
+                            a.click();
+                            window.URL.revokeObjectURL(url);
+                            document.body.removeChild(a);
+                        }
+                    } catch (error) {
+                        console.error(`Ошибка скачивания рила ${reelId}:`, error);
+                    }
+                }
+            }
+            
             await api.partner.completeOnboarding();
             setStep(4);
         } finally {
@@ -107,6 +136,10 @@ export default function Onboarding() {
 
     const copy = async (text: string) => {
         try { await navigator.clipboard.writeText(text); } catch {}
+    };
+
+    const handleReelPreview = (reel: Reel) => {
+        setPreviewReel(reel);
     };
 
     return (
@@ -213,13 +246,18 @@ export default function Onboarding() {
                                     <input type="checkbox" className="peer sr-only" checked={checked} onChange={e => setSelected(s => e.target.checked ? [...s, r.id] : s.filter(x => x !== r.id))} />
                                     <span className={`absolute left-2 top-2 z-10 grid h-5 w-5 place-items-center rounded-md border text-[12px] font-bold ${checked ? 'border-violet-600 bg-violet-600 text-white' : 'border-black/20 bg-white/95 text-black/50'}`}>{checked ? '✓' : ''}</span>
 
-                                    <div className="relative aspect-[4/5] w-full bg-gradient-to-b from-black/[0.06] to-black/[0.02]">
-                                        {r.thumbUrl ? (
+                                    <div className="relative aspect-[4/5] w-full bg-gradient-to-b from-black/[0.06] to-black/[0.02] cursor-pointer" onClick={() => handleReelPreview(r)}>
+                                        {r.thumbnailPath ? (
                                             // eslint-disable-next-line @next/next/no-img-element
-                                            <img src={r.thumbUrl} alt={r.title || 'Reel'} className="h-full w-full object-cover" loading="lazy" />
+                                            <img src={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/files${r.thumbnailPath}`} alt={r.title || 'Reel'} className="h-full w-full object-cover" loading="lazy" />
                                         ) : (
                                             <div className="absolute inset-0 grid place-items-center"><div className="rounded-md bg-black/5 p-2"><PlayIcon /></div></div>
                                         )}
+                                        <div className="absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 hover:opacity-100 transition-opacity">
+                                            <div className="rounded-full bg-white/90 p-2 text-black/70">
+                                                <PlayIcon />
+                                            </div>
+                                        </div>
                                     </div>
 
                                     <div className="space-y-1 px-3 pb-3 pt-2">
@@ -246,7 +284,7 @@ export default function Onboarding() {
                     <div className="mt-4 flex items-center justify-between text-[14px] text-black/70">
                         <span>Выбрано: {selected.length} рилсов</span>
                         <button onClick={nextFromContent} disabled={busy || selected.length === 0} className="btn-primary inline-flex items-center gap-2">
-                            {busy ? 'Сохраняем…' : (<><CloudIcon /> Сохранить выбор</>)}
+                            {busy ? 'Скачиваем и сохраняем…' : (<><CloudIcon /> Скачать и сохранить</>)}
                         </button>
                     </div>
                 </section>
@@ -262,6 +300,47 @@ export default function Onboarding() {
                     </ul>
                     <a href="/dashboard" className="btn-primary mt-7 inline-block">Перейти к дашборду →</a>
                 </section>
+            )}
+
+            {/* Modal для предпросмотра рила */}
+            {previewReel && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+                    <div className="relative max-h-full max-w-2xl rounded-2xl bg-white p-4">
+                        <button
+                            onClick={() => setPreviewReel(null)}
+                            className="absolute right-2 top-2 z-10 rounded-full bg-black/20 p-2 text-white hover:bg-black/40"
+                        >
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path d="M18 6L6 18M6 6l12 12" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                            </svg>
+                        </button>
+                        
+                        <div className="aspect-[9/16] w-full max-w-sm mx-auto rounded-xl overflow-hidden bg-black">
+                            {previewReel.previewPath ? (
+                                <video
+                                    src={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/files${previewReel.previewPath}`}
+                                    controls
+                                    autoPlay
+                                    className="w-full h-full object-cover"
+                                />
+                            ) : (
+                                <div className="w-full h-full flex items-center justify-center">
+                                    <div className="text-white text-center">
+                                        <div className="text-4xl mb-2">🎬</div>
+                                        <div className="text-sm">Превью недоступно</div>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                        
+                        <div className="mt-4 text-center">
+                            <h3 className="text-lg font-semibold">{previewReel.title || 'Без названия'}</h3>
+                            <p className="text-sm text-gray-600 mt-1">
+                                Длительность: {previewReel.durationSec || 0}с
+                            </p>
+                        </div>
+                    </div>
+                </div>
             )}
         </div>
     );

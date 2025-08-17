@@ -282,7 +282,7 @@ function ReelCard({ r, onReelClick }: { r: Reel; onReelClick: (reel: Reel) => vo
             >
                 {r.thumbnailPath ? (
                     <img
-                        src={r.thumbnailPath}
+                        src={`${API}/files${r.thumbnailPath}`}
                         alt={r.title || 'Reel thumbnail'}
                         className={`w-full h-full object-cover transition-opacity duration-300 ${
                             imageLoaded ? 'opacity-100' : 'opacity-0'
@@ -320,7 +320,7 @@ function ReelCard({ r, onReelClick }: { r: Reel; onReelClick: (reel: Reel) => vo
                     {r.title || 'Без названия'}
                 </div>
                 <div className="mt-1 line-clamp-1 text-[13px] leading-6 text-slate-600 sm:text-[14px]">
-                    {r.tags?.join(', ') || '—'}
+                    {Array.isArray(r.tags) ? r.tags.join(', ') : '—'}
                 </div>
                 {r.description && (
                     <div className="mt-2 line-clamp-2 text-[12px] leading-5 text-slate-500 sm:text-[13px]">
