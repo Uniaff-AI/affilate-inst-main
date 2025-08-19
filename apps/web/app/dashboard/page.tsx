@@ -112,6 +112,13 @@ export default function Dashboard() {
     loadLinks();
   }, []);
 
+  // Проверяем, что пользователь не админ
+  useEffect(() => {
+    if (me?.role === 'ADMIN') {
+      window.location.href = '/admin';
+    }
+  }, [me]);
+
   useEffect(() => {
     api.stats.overview(range).then(setStats).catch(() => setStats(null));
   }, [range]);

@@ -34,8 +34,19 @@ export default function Onboarding() {
         } catch {}
     }, []);
 
-    useEffect(() => { api.auth.me().then(setMe).catch(() => {}); }, []);
-    useEffect(() => { api.reels.list().then(setReels).catch(() => setReels([])); }, []);
+    useEffect(() => { 
+        api.auth.me().then(setMe).catch(() => {}); 
+    }, []);
+    useEffect(() => { 
+        api.reels.list().then(setReels).catch(() => setReels([])); 
+    }, []);
+
+    // Проверяем, что пользователь не админ
+    useEffect(() => {
+        if (me?.role === 'ADMIN') {
+            window.location.href = '/admin';
+        }
+    }, [me]);
 
     const saveCreds = (c: Creds) => {
         setCreds(c);
@@ -247,9 +258,9 @@ export default function Onboarding() {
                                     <span className={`absolute left-2 top-2 z-10 grid h-5 w-5 place-items-center rounded-md border text-[12px] font-bold ${checked ? 'border-violet-600 bg-violet-600 text-white' : 'border-black/20 bg-white/95 text-black/50'}`}>{checked ? '✓' : ''}</span>
 
                                     <div className="relative aspect-[4/5] w-full bg-gradient-to-b from-black/[0.06] to-black/[0.02] cursor-pointer" onClick={() => handleReelPreview(r)}>
-                                        {r.thumbnailPath ? (
+                                        {r.previewPath ? (
                                             // eslint-disable-next-line @next/next/no-img-element
-                                            <img src={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/files${r.thumbnailPath}`} alt={r.title || 'Reel'} className="h-full w-full object-cover" loading="lazy" />
+                                            <img src={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:14000'}/static${r.previewPath}`} alt={r.title || 'Reel'} className="h-full w-full object-cover" loading="lazy" />
                                         ) : (
                                             <div className="absolute inset-0 grid place-items-center"><div className="rounded-md bg-black/5 p-2"><PlayIcon /></div></div>
                                         )}
@@ -316,9 +327,9 @@ export default function Onboarding() {
                         </button>
                         
                         <div className="aspect-[9/16] w-full max-w-sm mx-auto rounded-xl overflow-hidden bg-black">
-                            {previewReel.previewPath ? (
+                            {previewReel.filePath ? (
                                 <video
-                                    src={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/files${previewReel.previewPath}`}
+                                    src={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:14000'}/static${previewReel.filePath}`}
                                     controls
                                     autoPlay
                                     className="w-full h-full object-cover"
@@ -327,7 +338,7 @@ export default function Onboarding() {
                                 <div className="w-full h-full flex items-center justify-center">
                                     <div className="text-white text-center">
                                         <div className="text-4xl mb-2">🎬</div>
-                                        <div className="text-sm">Превью недоступно</div>
+                                        <div className="text-sm">Видео недоступно</div>
                                     </div>
                                 </div>
                             )}

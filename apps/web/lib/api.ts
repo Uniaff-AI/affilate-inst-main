@@ -20,7 +20,7 @@ export const api = {
     login: (emailOrPhone: string, password: string) =>
         req('/auth/login', { method: 'POST', body: JSON.stringify({ emailOrPhone, password }) })
             .then(d => { if (typeof window !== 'undefined') localStorage.setItem('token', d.accessToken); return d; }),
-    register: (p: { email: string; password: string; name?: string; phone?: string; locale?: string }) =>
+    register: (p: { email: string; password: string; name?: string; phone?: string; locale?: string; role?: string }) =>
         req('/auth/register', { method: 'POST', body: JSON.stringify(p) }),
     me: () => req('/partner/me'),
   },

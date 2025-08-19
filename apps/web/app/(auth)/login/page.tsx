@@ -9,8 +9,15 @@ export default function Login() {
   const [email,setEmail] = useState(''); 
   const [pass2,setPass2] = useState(''); 
   const [name,setName]=useState('');
+  const [role,setRole]=useState<'USER'|'ADMIN'>('USER');
   
-  const goDash = () => (window.location.href='/onboarding');
+  const goDash = (role?: string) => {
+    if (role === 'ADMIN') {
+      window.location.href = '/admin';
+    } else {
+      window.location.href = '/onboarding';
+    }
+  };
   
   return (
     <div className="min-h-screen grid place-items-center px-3 py-4 sm:px-4 sm:py-6">
@@ -47,8 +54,8 @@ export default function Login() {
         {tab==='login' ? (
           <form className="space-y-3 sm:space-y-4" onSubmit={async e=>{
             e.preventDefault(); 
-            await api.auth.login(emailOrPhone,password); 
-            goDash();
+            const result = await api.auth.login(emailOrPhone,password); 
+            goDash(result.user.role);
           }}>
             <div>
               <label className="text-xs text-gray-600 sm:text-sm">Email or Phone</label>
@@ -70,7 +77,20 @@ export default function Login() {
               />
             </div>
             <button className="btn-primary w-full text-sm sm:text-base">Sign In as Partner</button>
-            <button type="button" className="w-full rounded-lg border py-2.5 text-sm font-medium hover:bg-gray-50 sm:py-3 sm:text-base">
+            <button 
+              type="button" 
+              className="w-full rounded-lg border py-2.5 text-sm font-medium hover:bg-gray-50 sm:py-3 sm:text-base"
+              onClick={async () => {
+                try {
+                  // Попытка входа как админ с тестовыми данными
+                  const result = await api.auth.login('admin@test.com', 'admin123');
+                  goDash(result.user.role);
+                } catch (error) {
+                  console.error('Admin login failed:', error);
+                  alert('Admin access failed. Please check credentials.');
+                }
+              }}
+            >
               Admin Access
             </button>
             <div className="text-center text-xs text-gray-500 sm:text-sm">
@@ -81,9 +101,9 @@ export default function Login() {
         ) : (
           <form className="space-y-3 sm:space-y-4" onSubmit={async e=>{
             e.preventDefault(); 
-            await api.auth.register({email, password: pass2, name}); 
-            await api.auth.login(email, pass2); 
-            goDash();
+            await api.auth.register({email, password: pass2, name, role}); 
+            const result = await api.auth.login(email, pass2); 
+            goDash(result.user.role);
           }}>
             <div>
               <label className="text-xs text-gray-600 sm:text-sm">Email</label>
@@ -112,6 +132,17 @@ export default function Login() {
                 value={name} 
                 onChange={e=>setName(e.target.value)} 
               />
+            </div>
+            <div>
+              <label className="text-xs text-gray-600 sm:text-sm">Role</label>
+              <select 
+                className="input mt-1 text-sm sm:text-base" 
+                value={role} 
+                onChange={e=>setRole(e.target.value as 'USER'|'ADMIN')}
+              >
+                <option value="USER">Partner</option>
+                <option value="ADMIN">Admin</option>
+              </select>
             </div>
             <button className="btn-primary w-full text-sm sm:text-base">Create account</button>
           </form>

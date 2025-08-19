@@ -15,19 +15,23 @@ import {
 import type { Response } from 'express';
 import { JwtGuard } from '../auth/jwt.guard';
 import { PrismaService } from '../prisma/prisma.service';
+import { VideoService } from './video.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname, join } from 'path';
 import { existsSync, mkdirSync, createReadStream, statSync } from 'fs';
 
-const uploadsRoot = join(__dirname, '..', 'uploads');
+const uploadsRoot = '/app/uploads';
 const uploadDir = join(uploadsRoot, 'reels');
 if (!existsSync(uploadDir)) mkdirSync(uploadDir, { recursive: true });
 
 @Controller('reels')
 @UseGuards(JwtGuard)
 export class ReelsController {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private videoService: VideoService
+  ) {}
 
   @Get()
   list() {
@@ -55,14 +59,40 @@ export class ReelsController {
       @UploadedFile() file: Express.Multer.File,
       @Body() meta: any,
   ) {
+    console.log('Upload request received:', { filename: file?.filename, size: file?.size, meta });
+    
     const me = await this.prisma.user.findUnique({ where: { id: req.user.sub } });
     if (me?.role !== 'ADMIN') throw new ForbiddenException('ADMIN only');
+
+    // Автоматически определяем длительность видео
+    let durationSec = Number(meta.durationSec || 0);
+    try {
+      const videoPath = join(uploadDir, file.filename);
+      console.log('Video path:', videoPath);
+      durationSec = await this.videoService.getVideoDuration(videoPath);
+      console.log('Duration detected:', durationSec);
+    } catch (error) {
+      console.error('Failed to get video duration:', error);
+      // Используем значение из формы как fallback
+    }
+
+    // Генерируем превью
+    let previewPath = meta.previewPath ?? null;
+    try {
+      const videoPath = join(uploadDir, file.filename);
+      const thumbnailName = `thumb_${file.filename.replace(/\.[^/.]+$/, '.jpg')}`;
+      const thumbnailPath = join(uploadDir, thumbnailName);
+      await this.videoService.generateThumbnail(videoPath, thumbnailPath);
+      previewPath = `/reels/${thumbnailName}`;
+    } catch (error) {
+      console.error('Failed to generate thumbnail:', error);
+    }
 
     const reel = await this.prisma.reel.create({
       data: {
         title: meta.title,
         locale: meta.locale ?? 'en',
-        durationSec: Number(meta.durationSec || 0),
+        durationSec: durationSec,
         tags: (meta.tags ?? '')
             .split(',')
             .map((s: string) => s.trim())
@@ -72,7 +102,7 @@ export class ReelsController {
             .map((s: string) => s.trim().replace(/^#/, '')),
         description: meta.description ?? null,
         filePath: `/reels/${file.filename}`,
-        previewPath: meta.previewPath ?? null,
+        previewPath: previewPath,
       },
     });
     return { ok: true, reel, downloadUrl: `/files${reel.filePath}` };
@@ -105,6 +135,8 @@ export class ReelsController {
 
     return createReadStream(abs).pipe(res);
   }
+
+
 }
 
 function mimeByExt(ext: string) {

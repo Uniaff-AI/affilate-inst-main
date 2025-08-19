@@ -12,8 +12,22 @@ export class AuthService {
     const exists = await this.prisma.user.findFirst({ where: { OR: [{ email: dto.email }, { phone: dto.phone ?? '' }] }});
     if (exists) throw new BadRequestException('User exists');
     const passwordHash = await bcrypt.hash(dto.password, 10);
-    const user = await this.prisma.user.create({ data: { email: dto.email, phone: dto.phone, passwordHash, name: dto.name ?? null, locale: dto.locale ?? 'en' }});
-    const partner = await this.prisma.partner.create({ data: { userId: user.id }});
+    const user = await this.prisma.user.create({ 
+      data: { 
+        email: dto.email, 
+        phone: dto.phone, 
+        passwordHash, 
+        name: dto.name ?? null, 
+        locale: dto.locale ?? 'en',
+        role: dto.role ?? 'USER'
+      }
+    });
+    
+    // Создаем партнера только для обычных пользователей
+    if (dto.role !== 'ADMIN') {
+      const partner = await this.prisma.partner.create({ data: { userId: user.id }});
+    }
+    
     return this.issue(user);
   }
 

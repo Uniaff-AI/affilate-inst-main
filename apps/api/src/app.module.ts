@@ -15,10 +15,7 @@ import { GraphModule } from './ig/graph.module';
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     ScheduleModule.forRoot(),
-    ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', 'uploads'),
-      serveRoot: '/files'
-    }),
+
     PrismaModule,
     AuthModule,
     PartnersModule,
